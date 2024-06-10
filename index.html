@@ -1,9 +1,11 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>websocket</title>
 </head>
+
 <body>
     <div>
         <audio id="pickup">
@@ -37,9 +39,9 @@
             <div class="modal-content">
                 <video id="videoElement" autoplay playsinline></video>
                 <div class="flex">
-                <!-- <button>micro on/off</button>
+                    <!-- <button>micro on/off</button>
                 <button>video on/off</button> -->
-                <button onclick="endCall()">end call.</button>
+                    <button onclick="endCall()">end call.</button>
                 </div>
             </div>
         </div>
@@ -47,17 +49,16 @@
             <div class="modal-content">
                 <video id="videoElement2" autoplay playsinline></video>
                 <div class="flex">
-                <!-- <button>micro on/off</button>
+                    <!-- <button>micro on/off</button>
                 <button>video on/off</button> -->
-                <button onclick="makeAnswer()">accept call.</button>
-                <!-- <button onclick="endCall()">reject call.</button> -->
+                    <button onclick="makeAnswer()">accept call.</button>
+                    <!-- <button onclick="endCall()">reject call.</button> -->
                 </div>
             </div>
         </div>
     </div>
     <script>
         const socket = new WebSocket("wss://go.paxintrade.com/paxcall/ws");
-        console.log('socketsdfsf', socket)
 
         var modal = document.getElementById("myModal");
         var modal2 = document.getElementById("myModal2");
@@ -77,7 +78,7 @@
 
         let remoteStream;
         let stream;
-        
+
         let isMicrophoneMuted = false;
 
 
@@ -98,7 +99,7 @@
             console.log('ICE Connection State:', peerConnection.iceConnectionState);
 
             if (peerConnection.iceConnectionState === 'connected') {
-                              
+
                 audioElement.srcObject = remoteStream
 
                 audioElement.play();
@@ -117,8 +118,8 @@
         });
 
 
-        peerConnection.addEventListener('track', (event) => {  
-             remoteStream = event.streams[0];
+        peerConnection.addEventListener('track', (event) => {
+            remoteStream = event.streams[0];
         })
 
 
@@ -208,7 +209,7 @@
                 // Заменяем старый медиа-поток на новый с видео
                 videoStream.getTracks().forEach(newTrack => {
                     // const matchingSender = senders.find(sender => sender.track && sender.track.kind === newTrack.kind);
-                    
+
                     // if (matchingSender) {
                     //     matchingSender.replaceTrack(newTrack);
                     // } else {
@@ -218,7 +219,7 @@
 
                 });
 
-        
+
                 // Создаем предложение для обновленных параметров медиа-потока
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
@@ -247,7 +248,7 @@
             }
         }
 
-        
+
 
         function updatePeerConnectionWithStream(peerConnection, newStream) {
 
@@ -291,9 +292,9 @@
 
 
             const message = {
-                    command: "video_stoped",
-                    sessionA: sessionAValue,
-                    sessionB: sessionBValue,
+                command: "video_stoped",
+                sessionA: sessionAValue,
+                sessionB: sessionBValue,
             };
 
             // Отправляем ответ через WebSocket
@@ -325,13 +326,13 @@
             }
         }
 
-     
+
         socket.addEventListener("open", (event) => {
             console.log("WebSocket opened:", event);
         });
 
         socket.addEventListener("message", async (event) => {
-            if(event.data.length < 25){
+            if (event.data.length < 25) {
                 console.log("WebSocket message received:", event.data);
                 const divElement = document.getElementById("session");
                 if (divElement) {
@@ -344,7 +345,7 @@
             if (data.command === 'stoped_video') {
                 document.getElementById('remoteVideo').style.display = 'none';
             }
-            
+
             if (data.command === 'start_video') {
                 sdpOffer = data.sdpOffer;
                 await peerConnection.setRemoteDescription(new RTCSessionDescription({ sdp: sdpOffer, type: "offer" }));
@@ -371,32 +372,32 @@
 
 
 
-            
-            if(event.data.length > 30){
+
+            if (event.data.length > 30) {
 
                 let data = JSON.parse(event.data)
                 let sdpOffer = null;
 
-                if(data.candidate){
+                if (data.candidate) {
                     ice_candidate.push(data)
                 }
 
-          
-                if(data.command === 'coming_call' ){
+
+                if (data.command === 'coming_call') {
 
                     const coming_call = document.getElementById('comingAudioCall');
                     coming_call.play()
 
                     sdpOffer = data.sdpOffer
                     sessionA = data.sessionA
-                    
+
                     document.getElementById("sessionBInput").value = data.sessionA;
                     document.getElementById("sessionAInput").value = data.sessionB;
 
                     openModal2();
 
                     peerConnection.setRemoteDescription(new RTCSessionDescription({ sdp: sdpOffer, type: "offer" }));
-            
+
                 }
 
                 if (data.command === 'sdp_answer') {
@@ -407,7 +408,7 @@
                     let sdpAnswer = data.sdpAnswer;
                     await peerConnection.setRemoteDescription(new RTCSessionDescription({ sdp: sdpAnswer, type: "answer" }));
 
-                    if(data.iceCandidates){
+                    if (data.iceCandidates) {
                         let candidates = data.iceCandidates;
 
                         candidates.forEach(async (candidate, index) => {
@@ -423,37 +424,37 @@
 
                         closeModals()
                     }
-                   
-                    
+
+
                 }
 
-              
 
-                if(data.command === 'finish'){
+
+                if (data.command === 'finish') {
                     const audioElement = document.getElementById("audioElement");
-                        if (audioElement) {
-                            audioElement.pause();
-                            audioElement.srcObject = null;
-                        }
+                    if (audioElement) {
+                        audioElement.pause();
+                        audioElement.srcObject = null;
+                    }
 
-                        const audio = document.getElementById('callAudio');
-                        audio.pause()
+                    const audio = document.getElementById('callAudio');
+                    audio.pause()
 
-                        const coming_call = document.getElementById('comingAudioCall');
-                        coming_call.pause()
+                    const coming_call = document.getElementById('comingAudioCall');
+                    coming_call.pause()
 
-                        const endcall = document.getElementById('endcall');
-                        endcall.play()
+                    const endcall = document.getElementById('endcall');
+                    endcall.play()
 
-                        
-                        peerConnection.close();
 
-                        stopStream();
-                        // Uncomment after button video ON
-                        // videoElement.srcObject = stream;
+                    peerConnection.close();
 
-                        // Open a modal window 
-                        closeModals();
+                    stopStream();
+                    // Uncomment after button video ON
+                    // videoElement.srcObject = stream;
+
+                    // Open a modal window 
+                    closeModals();
                 }
             }
 
@@ -469,16 +470,16 @@
 
         async function callWebSocket() {
 
-          
+
             const audio = document.getElementById('callAudio');
             audio.play()
 
-            
+
 
             const sessionAValue = document.getElementById("sessionAInput").value;
             const sessionBValue = document.getElementById("sessionBInput").value;
 
-  
+
 
             stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             stream.getTracks().forEach(track => {
@@ -508,19 +509,19 @@
             }
 
             peerConnection.addEventListener('icecandidate', (event) => {
-            if (event.candidate) {
-                // console.log('ICE Candidate:', event.candidate);
+                if (event.candidate) {
+                    // console.log('ICE Candidate:', event.candidate);
 
-                const iceCandidateMessage = {
-                    command: 'ice_candidate',
-                    sessionA: sessionA,
-                    sessionB: sessionB,
-                    iceCandidate: event.candidate
-                };
+                    const iceCandidateMessage = {
+                        command: 'ice_candidate',
+                        sessionA: sessionA,
+                        sessionB: sessionB,
+                        iceCandidate: event.candidate
+                    };
 
-                socket.send(JSON.stringify(iceCandidateMessage));
-            }
-        });
+                    socket.send(JSON.stringify(iceCandidateMessage));
+                }
+            });
 
         }
 
@@ -539,23 +540,23 @@
                 await peerConnection.addIceCandidate(iceCandidate);
             });
 
-     
+
             const coming_call = document.getElementById('comingAudioCall');
             coming_call.pause()
-                
+
             try {
 
                 stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 stream.getTracks().forEach(track => {
-                        peerConnection.addTrack(track, stream);
+                    peerConnection.addTrack(track, stream);
                 });
                 // make SDP Answer
                 const sdpAnswer = await peerConnection.createAnswer();
-                
+
                 // local set
                 await peerConnection.setLocalDescription(sdpAnswer);
 
-                
+
 
                 let iceCandidates = [];
 
@@ -572,7 +573,7 @@
 
                         socket.send(JSON.stringify(answerMessage));
 
-                        
+
                     }
                 })
 
@@ -588,12 +589,12 @@
 
             const sessionAValue = document.getElementById("sessionAInput").value;
             const sessionBValue = document.getElementById("sessionBInput").value;
-     
+
             modal2.style.display = "none";
             const message = {
-                    command: "finish",
-                    sessionA: sessionAValue,
-                    sessionB: sessionBValue
+                command: "finish",
+                sessionA: sessionAValue,
+                sessionB: sessionBValue
             };
             socket.send(JSON.stringify(message));
 
@@ -609,18 +610,18 @@
                 };
 
                 console.log(event.candidate)
-                
+
                 socket.send(JSON.stringify(iceCandidateMessage));
             }
         });
 
-        
+
         // Function to stop the stream
         function stopStream() {
             if (mediaStream) {
                 const tracks = mediaStream.getTracks();
                 tracks.forEach(track => track.stop());
-                mediaStream = null; 
+                mediaStream = null;
             }
         }
 
@@ -633,10 +634,12 @@
         button {
             margin: 5px
         }
+
         .flex {
             display: flex;
             justify-content: center;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -644,7 +647,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.7);
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
         .modal-content {
@@ -672,4 +675,5 @@
         }
     </style>
 </body>
+
 </html>
